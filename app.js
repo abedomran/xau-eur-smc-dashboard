@@ -1,47 +1,60 @@
-// app.js - Main Active Controller
-import { calculateMetrics } from './modules/metrics.js';
+// app.js - Main Active SMC Scanner & Telegram Engine
 
-const SCAN_INTERVAL = 30000; // Scan every 30 seconds
+const SCANNER_CONFIG = {
+  pollingIntervalMs: 60000, // Scans every 60 seconds
+  telegramToken: "YOUR_BOT_TOKEN_HERE",       // Replace with your Telegram Bot Token
+  chatId: "YOUR_CHANNEL_ID_HERE"              // Replace with your Telegram Chat ID
+};
 
-async function initActiveScanner() {
-    console.log("[SYSTEM] Active SMC/ICT trading scanner started.");
-    
-    // Run an initial scan immediately
-    runEngineScan();
+const activeSetups = new Map();
 
-    // Set up a continuous loop to keep it active
-    setInterval(runEngineScan, SCAN_INTERVAL);
+function initActiveScanner() {
+  console.log("[SYSTEM] Active SMC/ICT trading scanner started.");
+  runEngineScan();
+  setInterval(runEngineScan, SCAN_INTERVAL);
 }
 
 async function runEngineScan() {
-    try {
-        // Since you are using TradingView for charts, you can fetch live candle data 
-        // or tie this into your serverless API routes if you have custom endpoints.
-        console.log("[SCANNER] Evaluating market structure and liquidity pools...");
-
-        // Example state transition for your Day Trade engine card
-        updateEngineUI("card-day-trade", "WAIT", "Scanning 15M FVG zones...");
-        
-    } catch (error) {
-        console.error("[SCANNER] Error during execution scan:", error);
-    }
+  console.log("[SCANNER] Evaluating market structure and liquidity pools...");
+  // Update UI to show it's actively scanning
+  updateEngineUI("card-day-trade", "WAIT", "Scanning market structure...");
 }
 
 function updateEngineUI(cardId, state, reason) {
-    const card = document.getElementById(cardId);
-    if (!card) return;
-    
-    const badge = card.querySelector('.status-indicator') || card.querySelector('.badge');
-    const reasonText = card.querySelector('.strategy-reason') || card.querySelector('p');
-    
-    if (badge) {
-        badge.innerText = state;
-        badge.className = `status-indicator ${state.toLowerCase()}`;
-    }
-    if (reasonText) {
-        reasonText.innerText = reason;
-    }
+  const card = document.getElementById(cardId);
+  if (!card) return;
+  
+  const badge = card.querySelector('.status-indicator');
+  const reasonText = card.querySelector('.strategy-reason');
+  
+  if (badge) {
+    badge.innerText = state;
+    badge.className = `status-indicator ${state.toLowerCase()}`;
+  }
+  if (reasonText) {
+    reasonText.innerText = reason;
+  }
 }
 
-// Kick off the script when the DOM loads
+async function sendTelegramAlert(signal) {
+  if (!SCANNER_CONFIG.telegramToken || SCANNER_CONFIG.telegramToken.includes("YOUR")) return;
+
+  const text = `
+🚨 *SMC / ICT SIGNAL DETECTED* 🚨
+━━━━━━━━━━━━━━━━━━━
+📊 *Instrument:* ${signal.instrument}
+🎯 *Action:* ${signal.direction}
+💰 *Entry Price:* ${signal.entry}
+🛑 *Stop Loss:* ${signal.sl}
+📈 *Take Profit:* ${signal.tp}
+━━━━━━━━━━━━━━━━━━━
+  `.trim();
+
+  await fetch(`https://api.telegram.org/bot${SCANNER_CONFIG.telegramToken}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_id: SCANNER_CONFIG.chatId, text, parse_mode: "Markdown" })
+  });
+}
+
 window.addEventListener('DOMContentLoaded', initActiveScanner);
