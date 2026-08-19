@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "api/*.js", "use": "@vercel/node" },
+    { "src": "*", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/api/market-data", "dest": "/api/market-data.js" },
+    { "src": "/api/telegram", "dest": "/api/telegram.js" },
+    { "src": "/(.*)", "dest": "/$1" }
+  ]
+}
