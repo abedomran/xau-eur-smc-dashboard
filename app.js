@@ -3,7 +3,7 @@ import { StructureAnalyzer } from './modules/structure.js';
 import { StrategyEngine } from './modules/strategyEngine.js';
 import { SignalEngine } from './modules/signalEngine.js';
 import { SessionManager } from './modules/sessions.js';
-import { PerformanceTracker } from './modules/performance.js';
+import { PerformanceTracker } from './modules/metrics.js';
 
 let currentSymbol = 'XAU/USD';
 const adapter = new MarketDataAdapter();
