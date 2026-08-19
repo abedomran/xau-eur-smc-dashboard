@@ -1,4 +1,4 @@
-import { MarketDataAdapter } from './modules/marketData/marketDataAdapter.js';
+import { MarketDataAdapter } from './modules/marketdata/marketDataAdapter.js';
 import { StructureAnalyzer } from './modules/structure.js';
 import { StrategyEngine } from './modules/strategyEngine.js';
 import { SignalEngine } from './modules/signalEngine.js';
